@@ -8,7 +8,6 @@ def prim(graph):
     Update this method to work when the graph has multiple connected components.
     Rather than returning a single tree, return a list of trees,
     one per component, containing the MST for each component.
-
     Each tree is a set of (weight, node1, node2) tuples.    
     """
     def prim_helper(visited, frontier, tree):
@@ -31,13 +30,18 @@ def prim(graph):
                 return prim_helper(visited, frontier, tree)
         
     # pick first node as source arbitrarily
-    source = list(graph.keys())[0]
-    frontier = []
-    heappush(frontier, (0, source, source))
-    visited = set()  # store the visited nodes (don't need distance anymore)
-    tree = set()
-    prim_helper(visited, frontier, tree)
-    return tree
+    new_list = []
+    total = set(graph.keys())
+    while len (total)>0:
+      source = list(total)[0]
+      frontier = []
+      heappush(frontier, (0, source, source))
+      visited = set()  # store the visited nodes (don't need distance anymore)
+      tree = set()
+      (prim_helper(visited, frontier, tree))
+      total = total - visited
+      new_list.append(tree)
+    return new_list
 
 def test_prim():    
     graph = {
@@ -64,25 +68,20 @@ def test_prim():
     sum2 = sum(e[0] for e in trees[1])
     assert min([sum1, sum2]) == 10
     assert max([sum1, sum2]) == 12
-    ###
+    
 
 
 
 def mst_from_points(points):
-    """
-    Return the minimum spanning tree for a list of points, using euclidean distance 
-    as the edge weight between each pair of points.
-    See test_mst_from_points.
-
-    Params:
-      points... a list of tuples (city_name, x-coord, y-coord)
-
-    Returns:
-      a list of edges of the form (weight, node1, node2) indicating the minimum spanning
-      tree connecting the cities in the input.
-    """
-    ###TODO
-    pass
+    graph = defaultdict(set)
+    for point_i in points:
+      for point_j in points:
+        d = euclidean_distance(point_i, point_j)
+        graph[point_i[0]].add((point_j[0], d))
+        graph[point_j[0]].add((point_i[0], d))
+				
+    return prim(graph)[0]
+				
 
 def euclidean_distance(p1, p2):
     return sqrt((p1[1] - p2[1])**2 + (p1[2] - p2[2])**2)
